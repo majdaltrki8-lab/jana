@@ -1,5 +1,7 @@
 import confetti from 'canvas-confetti';
 import { loadSettings } from './storage';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
+import { Capacitor } from '@capacitor/core';
 
 // Audio Context Singleton for sound effects
 let audioCtx: AudioContext | null = null;
@@ -163,7 +165,7 @@ export function triggerConfetti() {
 // Global speech state tracking
 let currentActiveText: string | null = null;
 let speechListeners: Array<(text: string | null) => void> = [];
-let activeUtterance: SpeechSynthesisUtterance | null = null; // Prevent Chrome garbage collection
+let activeUtterance: SpeechSynthesisUtterance | null = null;
 let lastErrorMsg: string | null = null;
 
 export function subscribeSpeechState(listener: (text: string | null) => void) {
@@ -230,20 +232,16 @@ export function numberToArabicWords(num: number): string {
   return String(num);
 }
 
-// Converts a math expression like "2 + 3 = 5" or "5 - 2 = 3" or "7 > 4" to pure spoken Arabic words
 export function convertMathToSpokenArabic(expr: string): string {
   let res = expr;
-
-  // Normalize Arabic-Indic digits to Western for uniform parsing
   const arabicIndicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
   arabicIndicDigits.forEach((d, idx) => {
     res = res.replaceAll(d, String(idx));
   });
 
-  // Replace mathematical operators with proper Arabic words
   res = res
     .replace(/\+/g, ' زائد ')
-    .replace(/-(?!\d)/g, ' ناقص ') // avoid negative numbers if any
+    .replace(/-(?!\d)/g, ' ناقص ')
     .replace(/(?<=\s)-(?=\s)/g, ' ناقص ')
     .replace(/×|\*/g, ' ضرب ')
     .replace(/÷|\//g, ' تقسيم ')
@@ -255,7 +253,6 @@ export function convertMathToSpokenArabic(expr: string): string {
     .replace(/\?/g, ' كم ')
     .replace(/؟/g, ' كم ');
 
-  // Replace standalone numbers with their Arabic words
   res = res.replace(/\b\d+\b/g, (match) => {
     const val = parseInt(match, 10);
     if (!isNaN(val) && val >= 0 && val <= 100) {
@@ -264,37 +261,25 @@ export function convertMathToSpokenArabic(expr: string): string {
     return match;
   });
 
-  // Handle special dual case: "ناقص اثنين" sounds very natural in Arabic math
   res = res.replace(/ناقص اثنان\b/g, 'ناقص اثنين');
-
   return res.replace(/\s+/g, ' ').trim();
 }
 
-// Phonetic pronunciation correction for Arabic TTS engines
-// Guarantees crystal-clear pronunciation of Jana's name («جَنَا» / «يَا جَنَا») without misreading as "جنن" or "junan"
 export function fixArabicPronunciation(text: string): string {
   let s = text;
-  // Replace vocative forms first: "يا جنى" or "يَا جَنَى" -> "يَا جَنَا"
   s = s.replace(/(^|[^\u0621-\u064A])(?:يا\s+|يَا\s+)(?:جَنَى|جنى)(?=[^\u0621-\u064A]|$)/gu, '$1يَا جَنَا');
-  // Replace standalone name "جَنَى" or "جنى" -> "جَنَا"
   s = s.replace(/(^|[^\u0621-\u064A])(?:جَنَى|جنى)(?=[^\u0621-\u064A]|$)/gu, '$1جَنَا');
   return s;
 }
 
-// Clean text for speech: replace symbols, math, strip emojis so it speaks clearly
 export function prepareSpokenText(raw: string, lang: 'ar' | 'en'): string {
   let cleaned = raw;
-
-  // Remove common decorative emojis
   cleaned = cleaned.replace(/[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
 
   if (lang === 'ar') {
-    // 1. Convert math expressions & numbers to spoken Arabic words
     cleaned = convertMathToSpokenArabic(cleaned);
-    // 2. Phonetically fix pronunciation of Jana's name so it always reads «جَنَا» ("Janaa")
     cleaned = fixArabicPronunciation(cleaned);
   } else {
-    // English replacements
     cleaned = cleaned
       .replace(/\+/g, ' plus ')
       .replace(/-/g, ' minus ')
@@ -312,10 +297,12 @@ let lastSpokenData: { text: string; lang: 'ar' | 'en' } | null = null;
 
 // Stop any playing audio & speech synthesis
 export function stopSpeaking() {
-  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  if (Capacitor.isNativePlatform()) {
+    TextToSpeech.stop().catch(() => {});
+  } else if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
-  // Also pause any HTML audio elements currently playing
+
   if (typeof document !== 'undefined') {
     const audios = document.querySelectorAll('audio');
     audios.forEach((a) => {
@@ -326,14 +313,12 @@ export function stopSpeaking() {
   notifySpeechState(null);
 }
 
-// Helper to choose the best available voice, prioritizing natural female Arabic teacher voices
 export function pickBestVoice(lang: 'ar' | 'en'): SpeechSynthesisVoice | null {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
   const voices = window.speechSynthesis.getVoices();
   if (!voices || voices.length === 0) return null;
 
   if (lang === 'ar') {
-    // 1. Natural friendly female Arabic teacher voices (Salma, Zari, Hoda, Zeina, Laila, Maryam, Google Arabic Female, etc.)
     const naturalFemaleArabic = voices.find((v) => {
       const code = (v.lang || '').toLowerCase().replace('_', '-');
       const name = (v.name || '').toLowerCase();
@@ -352,7 +337,6 @@ export function pickBestVoice(lang: 'ar' | 'en'): SpeechSynthesisVoice | null {
     });
     if (naturalFemaleArabic) return naturalFemaleArabic;
 
-    // 2. Arabic Saudi Arabia (ar-SA) (e.g. Microsoft Naayf, Microsoft Hoda, Saudi voices)
     const saudiArabic = voices.find((v) => {
       const code = (v.lang || '').toLowerCase().replace('_', '-');
       const name = (v.name || '').toLowerCase();
@@ -366,20 +350,13 @@ export function pickBestVoice(lang: 'ar' | 'en'): SpeechSynthesisVoice | null {
     });
     if (saudiArabic) return saudiArabic;
 
-    // 3. Any available Arabic voice
     const anyArabic = voices.find((v) => {
       const code = (v.lang || '').toLowerCase().replace('_', '-');
       const name = (v.name || '').toLowerCase();
-      return (
-        code.startsWith('ar') ||
-        name.includes('arabic') ||
-        name.includes('عربي') ||
-        name.includes('maged')
-      );
+      return code.startsWith('ar') || name.includes('arabic') || name.includes('عربي');
     });
     if (anyArabic) return anyArabic;
   } else {
-    // English voices
     const preferredEnglish = voices.find((v) => {
       const code = (v.lang || '').toLowerCase().replace('_', '-');
       const name = (v.name || '').toLowerCase();
@@ -402,35 +379,62 @@ export function pickBestVoice(lang: 'ar' | 'en'): SpeechSynthesisVoice | null {
   return null;
 }
 
-// Web Speech API wrapper with auto-cancel of previous text
+// Unified speakText supporting Capacitor Native TextToSpeech on Android and Web Speech API on browser
 export function speakText(
   text: string,
   lang: 'ar' | 'en' = 'ar',
   onStart?: () => void,
   onEnd?: () => void
 ): boolean {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-    lastErrorMsg = 'محرك الصوت غير مدعوم في هذا المتصفح';
-    return false;
-  }
-
   try {
-    // Always stop and cancel previous audio immediately
     stopSpeaking();
-
     const spokenText = prepareSpokenText(text, lang);
     if (!spokenText) return false;
 
     lastSpokenData = { text, lang };
 
+    if (Capacitor.isNativePlatform()) {
+      // Native Android TextToSpeech engine via Capacitor Plugin
+      if (onStart) onStart();
+      notifySpeechState(text);
+
+      const settings = loadSettings();
+      const rate = settings?.speechRate || 0.85;
+
+      TextToSpeech.speak({
+        text: spokenText,
+        lang: lang === 'ar' ? 'ar-SA' : 'en-US',
+        rate: rate,
+        pitch: 1.15,
+        volume: 1.0,
+        category: 'ambient',
+      })
+        .then(() => {
+          notifySpeechState(null);
+          if (onEnd) onEnd();
+        })
+        .catch((err) => {
+          console.warn('Capacitor Native TTS error:', err);
+          lastErrorMsg = String(err);
+          notifySpeechState(null);
+          if (onEnd) onEnd();
+        });
+
+      return true;
+    }
+
+    // Web Browser Fallback (Web Speech API)
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      lastErrorMsg = 'محرك الصوت غير مدعوم في هذا المتصفح';
+      return false;
+    }
+
     const utterance = new SpeechSynthesisUtterance(spokenText);
-    activeUtterance = utterance; // Keep reference to prevent GC
+    activeUtterance = utterance;
 
     const settings = loadSettings();
-
-    // Default friendly slow rate (0.85) for 1st grade child
     utterance.rate = settings?.speechRate || 0.85;
-    utterance.pitch = 1.15; // Gentle, cheerful female teacher voice
+    utterance.pitch = 1.15;
 
     const bestVoice = pickBestVoice(lang);
     if (bestVoice) {
@@ -455,15 +459,12 @@ export function speakText(
     utterance.onerror = (e) => {
       activeUtterance = null;
       notifySpeechState(null);
-      // 'canceled' is not a fatal error (user tapped next or stop)
       if (e.error !== 'canceled') {
         lastErrorMsg = `خطأ صوتي: ${e.error || 'تعذر تشغيل الصوت'}`;
-        console.warn('SpeechSynthesis error:', e);
       }
       if (onEnd) onEnd();
     };
 
-    // Chrome/Android bug workaround: resume before speak
     if (window.speechSynthesis.paused) {
       window.speechSynthesis.resume();
     }
@@ -474,7 +475,6 @@ export function speakText(
     activeUtterance = null;
     notifySpeechState(null);
     lastErrorMsg = String(err);
-    console.warn('Speech synthesis exception:', err);
     if (onEnd) onEnd();
     return false;
   }
@@ -486,7 +486,6 @@ export function replayLastSpeech() {
   }
 }
 
-// --- Official Welcome Message requested by user ---
 export const OFFICIAL_JANA_WELCOME =
   'أهلًا يا جَنَى الجميلة! أنتِ ذكية ومجتهدة، هيا نبدأ رحلتنا التعليمية الممتعة!';
 
@@ -494,14 +493,12 @@ export function speakJanaWelcome(onStart?: () => void, onEnd?: () => void): bool
   return speakText(OFFICIAL_JANA_WELCOME, 'ar', onStart, onEnd);
 }
 
-// --- Special Test Phrase requested by user ---
 export const JANA_SPECIAL_TEST_PHRASE = 'مرحبًا يا جنى، أنتِ طالبة ذكية ومجتهدة';
 
 export function speakJanaTestPhrase(onStart?: () => void, onEnd?: () => void): boolean {
   return speakText(JANA_SPECIAL_TEST_PHRASE, 'ar', onStart, onEnd);
 }
 
-// --- Encouragement Phrases specified by user ---
 export const encouragementPhrases = {
   correct: [
     'أحسنتِ يا جنى!',
@@ -534,7 +531,6 @@ export function getRandomPraise(): string {
   return teacherPraisePhrases[Math.floor(Math.random() * teacherPraisePhrases.length)];
 }
 
-// Diagnostics data for Settings Screen
 export interface AudioDiagnostics {
   supported: boolean;
   totalVoices: number;
@@ -548,9 +544,30 @@ export interface AudioDiagnostics {
   activeLanguage: string;
   speechRate: number;
   lastError: string | null;
+  isNativeAndroid: boolean;
 }
 
 export function getAudioDiagnostics(): AudioDiagnostics {
+  const isNative = Capacitor.isNativePlatform();
+
+  if (isNative) {
+    return {
+      supported: true,
+      totalVoices: 1,
+      arabicVoices: ['Android Native TTS (ar-SA)'],
+      englishVoices: ['Android Native TTS (en-US)'],
+      allVoices: [{ name: 'Android Native TTS', lang: 'ar-SA' }],
+      selectedArabicVoice: 'Android Native TTS (ar-SA)',
+      selectedEnglishVoice: 'Android Native TTS (en-US)',
+      hasArabicVoice: true,
+      isSaudiVoice: true,
+      activeLanguage: 'ar-SA',
+      speechRate: loadSettings()?.speechRate || 0.85,
+      lastError: lastErrorMsg,
+      isNativeAndroid: true,
+    };
+  }
+
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     return {
       supported: false,
@@ -565,6 +582,7 @@ export function getAudioDiagnostics(): AudioDiagnostics {
       activeLanguage: 'none',
       speechRate: 0.85,
       lastError: 'المتصفح لا يدعم Web Speech API',
+      isNativeAndroid: false,
     };
   }
 
@@ -591,7 +609,6 @@ export function getAudioDiagnostics(): AudioDiagnostics {
 
   const bestArabic = pickBestVoice('ar');
   const bestEnglish = pickBestVoice('en');
-
   const settings = loadSettings();
 
   const isSaudi = Boolean(
@@ -616,5 +633,6 @@ export function getAudioDiagnostics(): AudioDiagnostics {
     activeLanguage: bestArabic ? bestArabic.lang : 'ar-SA',
     speechRate: settings?.speechRate || 0.85,
     lastError: lastErrorMsg,
+    isNativeAndroid: false,
   };
 }
