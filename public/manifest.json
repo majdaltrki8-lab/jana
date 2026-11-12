@@ -1,0 +1,40 @@
+{
+  "id": "/",
+  "name": "جنى التعليمي – مدرسة خديجة للبنات",
+  "short_name": "جنى التعليمي",
+  "description": "تطبيق تعليمي تفاعلي شامل للطالبة جنى في الصف الأول الابتدائي وفق المنهج اليمني، مدرسة خديجة للبنات",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#3b0764",
+  "theme_color": "#701a75",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/app-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
