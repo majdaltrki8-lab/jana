@@ -7,7 +7,7 @@ export const prescribedSurahs: QuranSurah[] = [
     englishName: 'Al-Fatihah',
     ayahCount: 7,
     revelationType: 'مكية',
-    audioUrl: 'https://server8.mp3quran.net/afs/001.mp3',
+    audioUrl: '/audio/quran/surahs/001.mp3',
     verses: [
       { number: 1, text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ' },
       { number: 2, text: 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ' },
@@ -24,7 +24,7 @@ export const prescribedSurahs: QuranSurah[] = [
     englishName: 'Al-Ikhlas',
     ayahCount: 4,
     revelationType: 'مكية',
-    audioUrl: 'https://server8.mp3quran.net/afs/112.mp3',
+    audioUrl: '/audio/quran/surahs/112.mp3',
     verses: [
       { number: 1, text: 'قُلْ هُوَ اللَّهُ أَحَدٌ' },
       { number: 2, text: 'اللَّهُ الصَّمَدُ' },
@@ -38,7 +38,7 @@ export const prescribedSurahs: QuranSurah[] = [
     englishName: 'Al-Falaq',
     ayahCount: 5,
     revelationType: 'مكية',
-    audioUrl: 'https://server8.mp3quran.net/afs/113.mp3',
+    audioUrl: '/audio/quran/surahs/113.mp3',
     verses: [
       { number: 1, text: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ' },
       { number: 2, text: 'مِن شَرِّ مَا خَلَقَ' },
@@ -53,7 +53,7 @@ export const prescribedSurahs: QuranSurah[] = [
     englishName: 'An-Nas',
     ayahCount: 6,
     revelationType: 'مكية',
-    audioUrl: 'https://server8.mp3quran.net/afs/114.mp3',
+    audioUrl: '/audio/quran/surahs/114.mp3',
     verses: [
       { number: 1, text: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ' },
       { number: 2, text: 'مَلِكِ النَّاسِ' },
@@ -69,7 +69,7 @@ export const prescribedSurahs: QuranSurah[] = [
     englishName: 'Al-Kawthar',
     ayahCount: 3,
     revelationType: 'مكية',
-    audioUrl: 'https://server8.mp3quran.net/afs/108.mp3',
+    audioUrl: '/audio/quran/surahs/108.mp3',
     verses: [
       { number: 1, text: 'إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ' },
       { number: 2, text: 'فَصَلِّ لِرَبِّكَ وَانْحَرْ' },
@@ -82,7 +82,7 @@ export const prescribedSurahs: QuranSurah[] = [
     englishName: 'An-Nasr',
     ayahCount: 3,
     revelationType: 'مدنية',
-    audioUrl: 'https://server8.mp3quran.net/afs/110.mp3',
+    audioUrl: '/audio/quran/surahs/110.mp3',
     verses: [
       { number: 1, text: 'إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ' },
       { number: 2, text: 'وَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ أَفْوَاجًا' },
@@ -95,7 +95,7 @@ export const prescribedSurahs: QuranSurah[] = [
     englishName: 'Al-Masad',
     ayahCount: 5,
     revelationType: 'مكية',
-    audioUrl: 'https://server8.mp3quran.net/afs/111.mp3',
+    audioUrl: '/audio/quran/surahs/111.mp3',
     verses: [
       { number: 1, text: 'تَبَّتْ يَدَا أَبِي لَهَبٍ وَتَبَّ' },
       { number: 2, text: 'مَا أَغْنَىٰ عَنْهُ مَالُهُ وَمَا كَسَبَ' },
@@ -110,7 +110,7 @@ export const prescribedSurahs: QuranSurah[] = [
     englishName: 'Quraysh',
     ayahCount: 4,
     revelationType: 'مكية',
-    audioUrl: 'https://server8.mp3quran.net/afs/106.mp3',
+    audioUrl: '/audio/quran/surahs/106.mp3',
     verses: [
       { number: 1, text: 'لِإِيلَافِ قُرَيْشٍ' },
       { number: 2, text: 'إِيلَافِهِمْ رِحْلَةَ الشِّتَاءِ وَالصَّيْفِ' },
@@ -124,7 +124,7 @@ export const prescribedSurahs: QuranSurah[] = [
     englishName: 'Al-Maun',
     ayahCount: 7,
     revelationType: 'مكية',
-    audioUrl: 'https://server8.mp3quran.net/afs/107.mp3',
+    audioUrl: '/audio/quran/surahs/107.mp3',
     verses: [
       { number: 1, text: 'أَرَأَيْتَ الَّذِي يُكَذِّبُ بِالدِّينِ' },
       { number: 2, text: 'فَذَٰلِكَ الَّذِي يَدُعُّ الْيَتِيمَ' },
@@ -141,7 +141,7 @@ export const prescribedSurahs: QuranSurah[] = [
     englishName: 'Al-Fil',
     ayahCount: 5,
     revelationType: 'مكية',
-    audioUrl: 'https://server8.mp3quran.net/afs/105.mp3',
+    audioUrl: '/audio/quran/surahs/105.mp3',
     verses: [
       { number: 1, text: 'أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ' },
       { number: 2, text: 'أَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ' },

@@ -26,7 +26,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, stars }) =>
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-[#f8edff] via-[#fdeeff] to-[#fff4fa] flex flex-col items-center justify-between p-4 overflow-hidden select-none">
+    <div className="relative min-h-screen bg-gradient-to-b from-[#f8edff] via-[#fdeeff] to-[#fff4fa] flex flex-col items-center justify-between p-4 overflow-y-auto overflow-x-hidden select-none">
       {/* Decorative background sunbeams & clouds */}
       <div className="absolute -top-24 -left-24 w-80 h-80 bg-amber-300/35 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/3 -right-24 w-88 h-88 bg-pink-300/35 rounded-full blur-3xl pointer-events-none" />

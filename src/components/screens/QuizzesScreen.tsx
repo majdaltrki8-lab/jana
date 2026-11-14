@@ -143,7 +143,7 @@ export const QuizzesScreen: React.FC<QuizzesScreenProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <SpeakButton text={quiz.title} size="xs" />
+                  <SpeakButton text={quiz.title} lang={quiz.id === 'en_quiz_1' ? 'en' : 'ar'} size="xs" />
                   <span className="text-[10px] font-bold bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full border border-amber-200">
                     بدء الاختبار
                   </span>

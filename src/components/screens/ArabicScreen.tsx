@@ -345,7 +345,13 @@ export const ArabicScreen: React.FC<ArabicScreenProps> = ({ onAddStars, onComple
           />
 
           {/* Large Letter Feature Card */}
-          <div className="bg-gradient-to-b from-purple-50 to-pink-50 rounded-3xl p-4 border-2 border-purple-200 text-center shadow-md relative">
+          <div
+            onClick={() => {
+              playSoundEffect.click();
+              speakText(selectedLetter.sound, 'ar');
+            }}
+            className="bg-gradient-to-b from-purple-50 to-pink-50 rounded-3xl p-4 border-2 border-purple-200 text-center shadow-md relative cursor-pointer"
+          >
             <div className="absolute top-3 left-3">
               <SpeakButton text={selectedLetter.sound} size="sm" className="bg-purple-200 text-purple-900" />
             </div>
@@ -457,7 +463,13 @@ export const ArabicScreen: React.FC<ArabicScreenProps> = ({ onAddStars, onComple
               </h3>
               <SpeakButton text={selectedStory.title} size="xs" />
             </div>
-            <div className="relative bg-rose-50/50 p-4 rounded-2xl border border-rose-100">
+            <div
+              onClick={() => {
+                playSoundEffect.click();
+                speakText(selectedStory.text, 'ar');
+              }}
+              className="relative bg-rose-50/50 p-4 rounded-2xl border border-rose-100 cursor-pointer"
+            >
               <div className="absolute top-2 left-2">
                 <SpeakButton text={selectedStory.text} size="sm" />
               </div>

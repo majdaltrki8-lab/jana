@@ -9,6 +9,7 @@ export type ScreenType =
   | 'yemeni_curriculum'
   | 'science'
   | 'games'
+  | 'drawing'
   | 'quizzes'
   | 'profile'
   | 'lessons_list'

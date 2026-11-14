@@ -18,6 +18,37 @@ export const GamesScreen: React.FC<GamesScreenProps> = ({ onAddStars }) => {
   const [letterScore, setLetterScore] = useState(0);
   const letterPool = ['أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'د', 'ر', 'س', 'م'];
 
+  // Game 2: Words Match Game
+  const wordChallenges = [
+    { word: 'تُفَّاحَة', emoji: '🍎', options: ['🍎', '🍌', '🍇'], spoken: 'أين صورة تُفَّاحَة يا جنى؟' },
+    { word: 'قِطَّة', emoji: '🐱', options: ['🐶', '🐱', '🐦'], spoken: 'أين صورة قِطَّة يا جنى؟' },
+    { word: 'شَمْس', emoji: '☀️', options: ['🌙', '⭐', '☀️'], spoken: 'أين صورة شَمْس يا جنى؟' },
+    { word: 'قَلَم', emoji: '✏️', options: ['📖', '✏️', '🎒'], spoken: 'أين صورة قَلَم يا جنى؟' },
+    { word: 'كِتَاب', emoji: '📖', options: ['📖', '🎈', '🌸'], spoken: 'أين صورة كِتَاب يا جنى؟' },
+  ];
+  const [wordGameIndex, setWordGameIndex] = useState(0);
+  const [wordGameFeedback, setWordGameFeedback] = useState<string | null>(null);
+
+  // Game 3: Fast Numbers Game
+  const numberChallenges = [
+    { target: 3, emojis: ['🍎', '🍎', '🍎'], options: [2, 3, 4], spoken: 'عدّي التفاحات واختاري العدد الصحيح يا جنى!' },
+    { target: 5, emojis: ['⭐', '⭐', '⭐', '⭐', '⭐'], options: [4, 5, 6], spoken: 'عدّي النجوم واختاري العدد الصحيح يا جنى!' },
+    { target: 4, emojis: ['🎈', '🎈', '🎈', '🎈'], options: [3, 4, 5], spoken: 'عدّي البالونات واختاري العدد الصحيح يا جنى!' },
+    { target: 6, emojis: ['🌸', '🌸', '🌸', '🌸', '🌸', '🌸'], options: [5, 6, 7], spoken: 'عدّي الزهرات واختاري العدد الصحيح يا جنى!' },
+  ];
+  const [numberGameIndex, setNumberGameIndex] = useState(0);
+  const [numberGameFeedback, setNumberGameFeedback] = useState<string | null>(null);
+
+  // Game 4: Math Addition & Subtraction Game
+  const mathChallenges = [
+    { expr: '2 + 3 = ؟', answer: 5, options: [4, 5, 6], spoken: 'كم ناتج اثنان زائد ثلاثة يا جنى؟' },
+    { expr: '5 - 2 = ؟', answer: 3, options: [2, 3, 4], spoken: 'كم ناتج خمسة ناقص اثنان يا جنى؟' },
+    { expr: '4 + 4 = ؟', answer: 8, options: [7, 8, 9], spoken: 'كم ناتج أربعة زائد أربعة يا جنى؟' },
+    { expr: '7 - 3 = ؟', answer: 4, options: [3, 4, 5], spoken: 'كم ناتج سبعة ناقص ثلاثة يا جنى؟' },
+  ];
+  const [mathGameIndex, setMathGameIndex] = useState(0);
+  const [mathGameFeedback, setMathGameFeedback] = useState<string | null>(null);
+
   // Game 5: Memory Match Game
   const initialMemoryCards = [
     { id: 1, val: '🍎', flipped: false, matched: false },
@@ -274,17 +305,21 @@ export const GamesScreen: React.FC<GamesScreenProps> = ({ onAddStars }) => {
               </h3>
               <SpeakButton text={`افقعي بالون حرف ${targetLetter}`} size="xs" />
             </div>
-            <div className="text-5xl font-black text-pink-600 mb-4 animate-bounce">
+            <div
+              onClick={() => speakText(`ابحثي عن حرف ${targetLetter} يا جنى واضغطي عليه!`, 'ar')}
+              className="text-5xl font-black text-pink-600 mb-4 animate-bounce cursor-pointer"
+              title="اضغطي لإعادة سماع الحرف"
+            >
               «{targetLetter}»
             </div>
 
-            {/* Balloon Grid */}
-            <div className="grid grid-cols-4 gap-2.5">
-              {['أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'د', 'ر'].map((letter, i) => (
+            {/* Balloon Grid covering full letterPool */}
+            <div className="grid grid-cols-5 gap-2">
+              {letterPool.map((letter, i) => (
                 <button
                   key={i}
                   onClick={() => handleLetterBalloonClick(letter)}
-                  className="h-16 rounded-3xl bg-gradient-to-tr from-pink-400 to-rose-500 text-white font-black text-2xl shadow-md border-2 border-white active:scale-90 transition-transform flex items-center justify-center cursor-pointer hover:brightness-110"
+                  className="h-14 rounded-3xl bg-gradient-to-tr from-pink-400 to-rose-500 text-white font-black text-2xl shadow-md border-2 border-white active:scale-90 transition-transform flex items-center justify-center cursor-pointer hover:brightness-110"
                 >
                   {letter}
                 </button>
@@ -298,6 +333,199 @@ export const GamesScreen: React.FC<GamesScreenProps> = ({ onAddStars }) => {
               <Volume2 className="w-3.5 h-3.5" />
               <span>تكرار نطق الحرف المطلوب 🔊</span>
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Game 2: Words Match Game */}
+      {activeGame === 'words_game' && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setActiveGame('menu')}
+              className="text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1.5 rounded-xl hover:bg-amber-200 transition cursor-pointer"
+            >
+              ← العودة للألعاب
+            </button>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-black text-purple-900">توصيل الصورة بالكلمة</span>
+              <SpeakButton text={wordChallenges[wordGameIndex].spoken} size="xs" />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-3xl p-5 border-2 border-amber-300 shadow-md text-center space-y-4">
+            <div
+              onClick={() => speakText(wordChallenges[wordGameIndex].spoken, 'ar')}
+              className="bg-amber-50 rounded-2xl p-4 border border-amber-200 cursor-pointer active:scale-98 transition"
+            >
+              <p className="text-xs font-bold text-amber-700 mb-1">اضغطي على الكلمة للاستماع:</p>
+              <h3 className="text-3xl font-black text-purple-950">
+                {wordChallenges[wordGameIndex].word} 🔊
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              {wordChallenges[wordGameIndex].options.map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => {
+                    if (opt === wordChallenges[wordGameIndex].emoji) {
+                      playSoundEffect.success();
+                      setWordGameFeedback(`ممتازة يا جنى! هذه صورة ${wordChallenges[wordGameIndex].word}!`);
+                      speakText('أحسنتِ يا جنى!', 'ar');
+                      onAddStars(3);
+                      setTimeout(() => {
+                        setWordGameFeedback(null);
+                        setWordGameIndex((p) => (p + 1) % wordChallenges.length);
+                      }, 1600);
+                    } else {
+                      playSoundEffect.error();
+                      setWordGameFeedback('حاولي مرة أخرى يا أميرتي!');
+                      speakText('حاولي مرة أخرى يا أميرتي!', 'ar');
+                    }
+                  }}
+                  className="py-5 bg-amber-50 hover:bg-amber-100 border-2 border-amber-200 rounded-2xl text-5xl active:scale-95 transition shadow-sm cursor-pointer"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+
+            {wordGameFeedback && (
+              <div className="p-2.5 bg-emerald-100 text-emerald-800 rounded-xl font-bold text-xs">
+                {wordGameFeedback}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Game 3: Fast Numbers Game */}
+      {activeGame === 'numbers_game' && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setActiveGame('menu')}
+              className="text-xs font-bold text-blue-800 bg-blue-100 px-3 py-1.5 rounded-xl hover:bg-blue-200 transition cursor-pointer"
+            >
+              ← العودة للألعاب
+            </button>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-black text-purple-900">لعبة العد السريع</span>
+              <SpeakButton text={numberChallenges[numberGameIndex].spoken} size="xs" />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-3xl p-5 border-2 border-blue-300 shadow-md text-center space-y-4">
+            <div
+              onClick={() => speakText(numberChallenges[numberGameIndex].spoken, 'ar')}
+              className="bg-blue-50 rounded-2xl p-4 border border-blue-200 cursor-pointer"
+            >
+              <p className="text-xs font-bold text-blue-800 mb-3">
+                كم عدد هذه الأشكال الجميلة؟ (اضغطي للاستماع 🔊)
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-2 text-4xl">
+                {numberChallenges[numberGameIndex].emojis.map((em, idx) => (
+                  <span key={idx}>{em}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              {numberChallenges[numberGameIndex].options.map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => {
+                    if (opt === numberChallenges[numberGameIndex].target) {
+                      playSoundEffect.success();
+                      setNumberGameFeedback(`صحيح يا جنى! العدد هو ${opt}!`);
+                      speakText(`ممتاز يا بطلتي!`, 'ar');
+                      onAddStars(3);
+                      setTimeout(() => {
+                        setNumberGameFeedback(null);
+                        setNumberGameIndex((p) => (p + 1) % numberChallenges.length);
+                      }, 1600);
+                    } else {
+                      playSoundEffect.error();
+                      setNumberGameFeedback('حاولي العد مرة أخرى يا جنى!');
+                      speakText('لا بأس يا بطلتي، جربي مرة ثانية!', 'ar');
+                    }
+                  }}
+                  className="py-4 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-2xl text-3xl font-black text-blue-950 active:scale-95 transition shadow-sm cursor-pointer"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+
+            {numberGameFeedback && (
+              <div className="p-2.5 bg-emerald-100 text-emerald-800 rounded-xl font-bold text-xs">
+                {numberGameFeedback}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Game 4: Math Challenge Game */}
+      {activeGame === 'math_game' && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setActiveGame('menu')}
+              className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1.5 rounded-xl hover:bg-emerald-200 transition cursor-pointer"
+            >
+              ← العودة للألعاب
+            </button>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-black text-purple-900">مسابقة الجمع والطرح</span>
+              <SpeakButton text={mathChallenges[mathGameIndex].spoken} size="xs" />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-3xl p-5 border-2 border-emerald-300 shadow-md text-center space-y-4">
+            <div
+              onClick={() => speakText(mathChallenges[mathGameIndex].spoken, 'ar')}
+              className="bg-emerald-50 rounded-2xl p-5 border border-emerald-200 cursor-pointer"
+            >
+              <p className="text-xs font-bold text-emerald-700 mb-1">اضغطي لسماع المسألة 🔊</p>
+              <div dir="ltr" className="text-3xl font-black text-emerald-950">
+                {mathChallenges[mathGameIndex].expr}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              {mathChallenges[mathGameIndex].options.map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => {
+                    if (opt === mathChallenges[mathGameIndex].answer) {
+                      playSoundEffect.fanfare();
+                      setMathGameFeedback(`عبقرية يا جنى! الإجابة الصحيحة ${opt}!`);
+                      speakText('أحسنتِ يا جنى!', 'ar');
+                      onAddStars(4);
+                      setTimeout(() => {
+                        setMathGameFeedback(null);
+                        setMathGameIndex((p) => (p + 1) % mathChallenges.length);
+                      }, 1600);
+                    } else {
+                      playSoundEffect.error();
+                      setMathGameFeedback('فكري بهدوء يا جنى، أنتِ قادرة على حلها!');
+                      speakText('فكري بهدوء يا جنى، أنتِ قادرة على حلها!', 'ar');
+                    }
+                  }}
+                  className="py-4 bg-emerald-50 hover:bg-emerald-100 border-2 border-emerald-200 rounded-2xl text-2xl font-black text-emerald-950 active:scale-95 transition shadow-sm cursor-pointer"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+
+            {mathGameFeedback && (
+              <div className="p-2.5 bg-emerald-100 text-emerald-800 rounded-xl font-bold text-xs">
+                {mathGameFeedback}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -372,7 +600,13 @@ export const GamesScreen: React.FC<GamesScreenProps> = ({ onAddStars }) => {
               🧩
             </div>
 
-            <div className="relative bg-violet-50/70 p-4 rounded-2xl border border-violet-100 mb-4">
+            <div
+              onClick={() => {
+                playSoundEffect.click();
+                speakText(riddles[riddleIndex].spokenQ, 'ar');
+              }}
+              className="relative bg-violet-50/70 p-4 rounded-2xl border border-violet-100 mb-4 cursor-pointer active:scale-98 transition"
+            >
               <div className="absolute top-2 left-2">
                 <SpeakButton text={riddles[riddleIndex].spokenQ} size="sm" />
               </div>
@@ -429,46 +663,6 @@ export const GamesScreen: React.FC<GamesScreenProps> = ({ onAddStars }) => {
                 <SpeakButton text={riddleFeedback} size="xs" variant="ghost" />
               </div>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* Fallback simple view for words, numbers, math games */}
-      {(activeGame === 'words_game' || activeGame === 'numbers_game' || activeGame === 'math_game') && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setActiveGame('menu')}
-              className="text-xs font-bold text-purple-800 bg-purple-100 px-3 py-1.5 rounded-xl hover:bg-purple-200 transition cursor-pointer"
-            >
-              ← العودة للألعاب
-            </button>
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-black text-purple-900">تحدي الذكاء والمرح</span>
-              <SpeakButton text="تحدي الذكاء والمرح" size="xs" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-3xl p-6 border-2 border-purple-300 shadow-md text-center">
-            <div className="text-6xl mb-2">⭐</div>
-            <h3 className="text-lg font-black text-purple-950 mb-1">
-              مرحى يا بطلة خديجة جنى!
-            </h3>
-            <p className="text-xs text-purple-700 max-w-xs mx-auto mb-4">
-              أنتِ تلعبين وتتعلمين في آنٍ واحد! جمعتِ نقاطاً إضافية في رصيدكِ التعليمي!
-            </p>
-
-            <button
-              onClick={() => {
-                playSoundEffect.fanfare();
-                onAddStars(5);
-                triggerConfetti();
-                speakText('أحسنتِ يا جنى! ربحتِ 5 نجوم جديدة!', 'ar');
-              }}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-black text-xs rounded-2xl shadow-lg active:scale-95 transition cursor-pointer"
-            >
-              استلام ٥ نجوم هدية ⭐
-            </button>
           </div>
         </div>
       )}

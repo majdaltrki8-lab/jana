@@ -174,7 +174,11 @@ export const IslamicScreen: React.FC<IslamicScreenProps> = ({ onAddStars, onComp
                   {section.items.map((item, i) => (
                     <div
                       key={i}
-                      className="p-2.5 bg-emerald-50/60 rounded-xl text-xs sm:text-sm font-bold text-emerald-950 flex items-center justify-between"
+                      onClick={() => {
+                        playSoundEffect.click();
+                        speakText(item, 'ar');
+                      }}
+                      className="p-2.5 bg-emerald-50/60 hover:bg-emerald-100/70 rounded-xl text-xs sm:text-sm font-bold text-emerald-950 flex items-center justify-between cursor-pointer active:scale-98 transition"
                     >
                       <span>{item}</span>
                       <SpeakButton text={item} size="xs" variant="ghost" />
@@ -217,7 +221,13 @@ export const IslamicScreen: React.FC<IslamicScreenProps> = ({ onAddStars, onComp
             </div>
 
             {/* Current Step Card */}
-            <div className="bg-gradient-to-b from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200 text-center my-3 relative">
+            <div
+              onClick={() => {
+                playSoundEffect.click();
+                speakText(islamicWorshipData.wuduSteps[wuduStepIndex].text, 'ar');
+              }}
+              className="bg-gradient-to-b from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200 text-center my-3 relative cursor-pointer active:scale-98 transition"
+            >
               <div className="absolute top-2 left-2">
                 <SpeakButton text={islamicWorshipData.wuduSteps[wuduStepIndex].text} size="xs" />
               </div>
@@ -340,7 +350,11 @@ export const IslamicScreen: React.FC<IslamicScreenProps> = ({ onAddStars, onComp
             {islamicManners.map((item) => (
               <div
                 key={item.title}
-                className="bg-white rounded-2xl p-4 border border-pink-200 shadow-sm flex items-start gap-3 relative"
+                onClick={() => {
+                  playSoundEffect.click();
+                  speakText(`${item.title}. ${item.text}`, 'ar');
+                }}
+                className="bg-white rounded-2xl p-4 border border-pink-200 shadow-sm flex items-start gap-3 relative cursor-pointer hover:bg-pink-50/50 active:scale-98 transition"
               >
                 <span className="text-3xl p-1 bg-pink-50 rounded-xl">{item.emoji}</span>
                 <div className="flex-1">
@@ -352,9 +366,10 @@ export const IslamicScreen: React.FC<IslamicScreenProps> = ({ onAddStars, onComp
                     {item.text}
                   </p>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       playSoundEffect.click();
-                      speakText(`${item.title}: ${item.text}`, 'ar');
+                      speakText(`${item.title}. ${item.text}`, 'ar');
                     }}
                     className="mt-2 text-[11px] font-bold text-pink-700 flex items-center gap-1 hover:underline cursor-pointer"
                   >

@@ -25,6 +25,7 @@ export const LessonsListScreen: React.FC<LessonsListScreenProps> = ({
       id: 'english' as ScreenType,
       name: 'اللغة الإنجليزية',
       lessonsCount: 'A-Z + Words & Speaking',
+      spokenDesc: 'الحروف الإنجليزية والكلمات والمحادثة',
       icon: '🔤',
       color: 'bg-blue-500',
     },
@@ -34,6 +35,13 @@ export const LessonsListScreen: React.FC<LessonsListScreenProps> = ({
       lessonsCount: 'الأرقام والجمع والطرح',
       icon: '🔢',
       color: 'bg-amber-500',
+    },
+    {
+      id: 'science' as ScreenType,
+      name: 'العلوم والبيئة',
+      lessonsCount: 'الحواس الخمس، النباتات، الحيوانات، الماء والبيئة',
+      icon: '🔬',
+      color: 'bg-emerald-600',
     },
     {
       id: 'quran' as ScreenType,
@@ -98,7 +106,7 @@ export const LessonsListScreen: React.FC<LessonsListScreenProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <SpeakButton text={`${subj.name}. ${subj.lessonsCount}`} size="xs" />
+              <SpeakButton text={`${subj.name}. ${'spokenDesc' in subj && subj.spokenDesc ? subj.spokenDesc : subj.lessonsCount}`} size="xs" />
               <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                 متابعة ❯
               </span>

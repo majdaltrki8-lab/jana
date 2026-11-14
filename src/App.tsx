@@ -11,6 +11,7 @@ import { IslamicScreen } from './components/screens/IslamicScreen';
 import { YemeniCurriculumScreen } from './components/screens/YemeniCurriculumScreen';
 import { ScienceScreen } from './components/screens/ScienceScreen';
 import { GamesScreen } from './components/screens/GamesScreen';
+import { DrawingScreen } from './components/screens/DrawingScreen';
 import { QuizzesScreen } from './components/screens/QuizzesScreen';
 import { ProfileProgressScreen } from './components/screens/ProfileProgressScreen';
 import { LessonsListScreen } from './components/screens/LessonsListScreen';
@@ -34,17 +35,31 @@ export default function App() {
   const [settings, setSettings] = useState<AppSettings>(loadSettings);
   const [isPhoneFrame, setIsPhoneFrame] = useState(false);
 
-  // Auto transition from splash after first visit if preferred, or direct entry
+  // Sync Android/browser hardware Back button across screens cleanly
   useEffect(() => {
-    // If returning user has already visited in this session, can stay or start
+    const handlePopState = (e: PopStateEvent) => {
+      const targetScreen = (e.state && e.state.screen) as ScreenType | undefined;
+      if (targetScreen) {
+        setCurrentScreen(targetScreen);
+      } else {
+        setCurrentScreen('home');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const handleStartApp = () => {
+    window.history.pushState({ screen: 'home' }, '');
     setCurrentScreen('home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleNavigate = (screen: ScreenType) => {
     playSoundEffect.click();
+    if (screen !== currentScreen) {
+      window.history.pushState({ screen }, '');
+    }
     setCurrentScreen(screen);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -99,6 +114,8 @@ export default function App() {
         return 'العلوم والبيئة';
       case 'games':
         return 'الألعاب التعليمية';
+      case 'drawing':
+        return 'الرسم والتلوين';
       case 'quizzes':
         return 'الاختبارات التفاعلية';
       case 'profile':
@@ -199,6 +216,13 @@ export default function App() {
                 />
               )}
               {currentScreen === 'games' && <GamesScreen onAddStars={handleAddStars} />}
+              {currentScreen === 'drawing' && (
+                <DrawingScreen
+                  onAddStars={handleAddStars}
+                  onCompleteLesson={handleCompleteLesson}
+                  onBack={() => handleNavigate('home')}
+                />
+              )}
               {currentScreen === 'quizzes' && (
                 <QuizzesScreen
                   onAddStars={handleAddStars}

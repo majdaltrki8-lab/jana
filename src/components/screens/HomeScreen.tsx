@@ -292,32 +292,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, stars }) => 
         </div>
       </div>
 
-      {/* Row 3: 2 Subject Cards matching Mockup 2 (Games, Quizzes) */}
+      {/* Row 3: 2 Subject Cards (Drawing & Coloring replacing duplicate Games, Quizzes) */}
       <div className="grid grid-cols-2 gap-2.5">
-        {/* 6. الألعاب التعليمية (Lilac card, Gamepad controller) */}
+        {/* 6. الرسم والتلوين (Art & Coloring card) */}
         <div
           onClick={() =>
             handleCardClick(
-              'games',
-              'الألعاب التعليمية: ست ألعاب ذكاء ومرح ومطابقة الحروف والأرقام',
+              'drawing',
+              'قسم الرسم والتلوين: اختاري رسمة جميلة ولونيها بألوانكِ المفضلة يا جنى',
               'ar'
             )
           }
-          className="relative bg-gradient-to-b from-purple-50 via-fuchsia-50 to-purple-100 rounded-2xl p-3 border-2 border-purple-300 shadow-sm flex flex-col items-center text-center hover:bg-purple-100 transition active:scale-95 group cursor-pointer"
+          className="relative bg-gradient-to-b from-fuchsia-50 via-pink-50 to-amber-50 rounded-2xl p-3 border-2 border-fuchsia-300 shadow-sm flex flex-col items-center text-center hover:bg-fuchsia-100 transition active:scale-95 group cursor-pointer"
         >
           <div className="absolute top-1.5 left-1.5">
             <SpeakButton
-              text="الألعاب التعليمية: ست ألعاب ذكاء ومرح وتحديات مسلية"
+              text="الرسم والتلوين: تلوين الرسومات والألوان وحفظ لوحات جنى"
               size="xs"
               variant="ghost"
             />
           </div>
           <div className="text-4xl my-1 group-hover:scale-110 transition filter drop-shadow">
-            🎮
+            🎨
           </div>
-          <div className="text-sm font-black text-purple-950 mt-1">الألعاب التعليمية</div>
-          <span className="text-[10px] font-bold text-purple-700 mt-0.5">
-            ذكاء ومرح وتركيز
+          <div className="text-sm font-black text-fuchsia-950 mt-1">الرسم والتلوين</div>
+          <span className="text-[10px] font-bold text-fuchsia-700 mt-0.5">
+            رسومات وألوان وإبداع
           </span>
         </div>
 

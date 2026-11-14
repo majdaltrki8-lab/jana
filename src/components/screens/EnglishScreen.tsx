@@ -184,7 +184,13 @@ export const EnglishScreen: React.FC<EnglishScreenProps> = ({ onAddStars, onComp
           />
 
           {/* Letter Showcase Card */}
-          <div className="bg-gradient-to-b from-blue-50 to-indigo-50 rounded-3xl p-4 border-2 border-blue-200 text-center shadow-md relative">
+          <div
+            onClick={() => {
+              playSoundEffect.click();
+              speakText(`${selectedLetter.upper}. ${selectedLetter.word}.`, 'en');
+            }}
+            className="bg-gradient-to-b from-blue-50 to-indigo-50 rounded-3xl p-4 border-2 border-blue-200 text-center shadow-md relative cursor-pointer"
+          >
             <div className="absolute top-3 left-3">
               <SpeakButton
                 text={`Letter ${selectedLetter.upper}. ${selectedLetter.upper} is for ${selectedLetter.word}.`}
@@ -478,7 +484,13 @@ export const EnglishScreen: React.FC<EnglishScreenProps> = ({ onAddStars, onComp
                 <SpeakButton text={story.title} lang="en" size="xs" />
               </div>
 
-              <div className="relative bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100">
+              <div
+                onClick={() => {
+                  playSoundEffect.click();
+                  speakText(story.text, 'en');
+                }}
+                className="relative bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 cursor-pointer"
+              >
                 <div className="absolute top-2 left-2">
                   <SpeakButton text={story.text} lang="en" size="sm" />
                 </div>

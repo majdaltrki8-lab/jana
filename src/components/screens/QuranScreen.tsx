@@ -27,6 +27,7 @@ export const QuranScreen: React.FC<QuranScreenProps> = ({ onAddStars, onComplete
 
   // Memorization quiz state
   const [quizFeedback, setQuizFeedback] = useState<string | null>(null);
+  const [audioError, setAudioError] = useState<string | null>(null);
 
   const handleStopAudio = () => {
     if (audioRef.current) {
@@ -38,17 +39,19 @@ export const QuranScreen: React.FC<QuranScreenProps> = ({ onAddStars, onComplete
       setPlayingAyah(null);
     }
     setIsPlaying(false);
+    setAudioError(null);
   };
 
-  const handlePlayAyah = (surahId: number, ayahNumber: number) => {
+  const handlePlayAyah = (surahId: number, ayahNumber: number, forceReplay: boolean = false) => {
     stopSpeaking();
+    setAudioError(null);
     // Stop full surah audio if playing
     if (audioRef.current && !audioRef.current.paused) {
       audioRef.current.pause();
       setIsPlaying(false);
     }
 
-    if (playingAyah === ayahNumber && verseAudioRef.current && !verseAudioRef.current.paused) {
+    if (!forceReplay && playingAyah === ayahNumber && verseAudioRef.current && !verseAudioRef.current.paused) {
       verseAudioRef.current.pause();
       setPlayingAyah(null);
       return;
@@ -56,13 +59,14 @@ export const QuranScreen: React.FC<QuranScreenProps> = ({ onAddStars, onComplete
 
     const sPad = String(surahId).padStart(3, '0');
     const aPad = String(ayahNumber).padStart(3, '0');
-    const url = `https://everyayah.com/data/Alafasy_128kbps/${sPad}${aPad}.mp3`;
+    const url = `/audio/quran/ayahs/${sPad}${aPad}.mp3`;
 
     if (!verseAudioRef.current) {
       verseAudioRef.current = new Audio(url);
     } else {
       verseAudioRef.current.pause();
       verseAudioRef.current.src = url;
+      verseAudioRef.current.currentTime = 0;
     }
 
     verseAudioRef.current.onended = () => {
@@ -72,10 +76,14 @@ export const QuranScreen: React.FC<QuranScreenProps> = ({ onAddStars, onComplete
 
     verseAudioRef.current.onerror = () => {
       setPlayingAyah(null);
+      setAudioError(`ملف تلاوة الآية ${ayahNumber} من ${selectedSurah.name} غير متوفر محلياً (${url}).`);
     };
 
     setPlayingAyah(ayahNumber);
-    verseAudioRef.current.play().catch(() => setPlayingAyah(null));
+    verseAudioRef.current.play().catch(() => {
+      setPlayingAyah(null);
+      setAudioError(`تعذر تشغيل تلاوة الآية ${ayahNumber} محلياً.`);
+    });
   };
 
   const quranCards = [
@@ -131,13 +139,15 @@ export const QuranScreen: React.FC<QuranScreenProps> = ({ onAddStars, onComplete
 
   const handlePlayAudio = () => {
     stopSpeaking(); // stop any synthetic TTS speech first
+    setAudioError(null);
     if (!audioRef.current) return;
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
       audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {
-        // Fallback
+        setIsPlaying(false);
+        setAudioError(`تعذر تشغيل ملف السورة المحلي (${selectedSurah.audioUrl}).`);
       });
     }
   };
@@ -307,14 +317,24 @@ export const QuranScreen: React.FC<QuranScreenProps> = ({ onAddStars, onComplete
 
           {/* Surah Audio Player Card */}
           <div className="bg-gradient-to-b from-emerald-50 via-teal-50 to-white rounded-3xl p-5 border-2 border-emerald-300 shadow-md">
-            {/* Audio tag with reliable audio stream */}
+            {/* Offline local Quran audio tag */}
             <audio
               ref={audioRef}
               src={selectedSurah.audioUrl}
               onEnded={handleAudioEnded}
-              onPlay={() => setIsPlaying(true)}
+              onPlay={() => { setIsPlaying(true); setAudioError(null); }}
               onPause={() => setIsPlaying(false)}
+              onError={() => {
+                setIsPlaying(false);
+                setAudioError(`ملف تلاوة ${selectedSurah.name} غير موجود محلياً.`);
+              }}
             />
+
+            {audioError && (
+              <div className="mb-3 p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-800 text-center">
+                {audioError}
+              </div>
+            )}
 
             <div className="text-center mb-4">
               <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">
@@ -388,7 +408,8 @@ export const QuranScreen: React.FC<QuranScreenProps> = ({ onAddStars, onComplete
                 return (
                   <div
                     key={ayah.number}
-                    className={`p-3 rounded-2xl border transition-all ${
+                    onClick={() => handlePlayAyah(selectedSurah.id, ayah.number, true)}
+                    className={`p-3 rounded-2xl border transition-all cursor-pointer ${
                       isAyahActive
                         ? 'bg-amber-50/90 border-amber-400 shadow-md ring-2 ring-amber-300'
                         : 'bg-emerald-50/40 hover:bg-emerald-50/80 border-emerald-100'
@@ -403,7 +424,10 @@ export const QuranScreen: React.FC<QuranScreenProps> = ({ onAddStars, onComplete
                       </p>
                       <button
                         type="button"
-                        onClick={() => handlePlayAyah(selectedSurah.id, ayah.number)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePlayAyah(selectedSurah.id, ayah.number, false);
+                        }}
                         className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition active:scale-95 shrink-0 cursor-pointer ${
                           isAyahActive
                             ? 'bg-amber-400 text-purple-950 shadow ring-2 ring-amber-300 animate-pulse'

@@ -10,6 +10,7 @@ import {
   AudioDiagnostics,
   convertMathToSpokenArabic,
   stopSpeaking,
+  subscribeSpeechState,
 } from '../../utils/audio';
 import {
   Volume2,
@@ -44,6 +45,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const [diagnostics, setDiagnostics] = useState<AudioDiagnostics>(getAudioDiagnostics());
   const [testingItem, setTestingItem] = useState<string | null>(null);
   const [showAllVoices, setShowAllVoices] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const refreshVoices = () => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -55,18 +57,21 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   useEffect(() => {
     refreshVoices();
 
+    const unsubSpeech = subscribeSpeechState((active) => {
+      if (!active) setTestingItem(null);
+    });
+
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.onvoiceschanged = refreshVoices;
-      // Also poll a few times because Windows Chrome loads SAPI5 voices asynchronously
       const timer1 = setTimeout(refreshVoices, 300);
       const timer2 = setTimeout(refreshVoices, 1000);
-      const timer3 = setTimeout(refreshVoices, 2500);
       return () => {
+        unsubSpeech();
         clearTimeout(timer1);
         clearTimeout(timer2);
-        clearTimeout(timer3);
       };
     }
+    return unsubSpeech;
   }, []);
 
   const handleToggleSound = () => {
@@ -194,7 +199,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 صفحة فحص الصوت واختبار النطق
               </h3>
               <p className="text-[10px] text-indigo-700 font-medium">
-                فحص أصوات Windows والمتصفح (speechSynthesis.getVoices())
+                ملفات صوت المعلمة المدمجة دون إنترنت ({diagnostics.verifiedTtsCount} مقطع نطق + {diagnostics.verifiedQuranSurahCount} سور و{diagnostics.verifiedQuranAyahCount} آية)
               </p>
             </div>
           </div>
@@ -205,52 +210,51 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               playSoundEffect.click();
             }}
             className="p-1.5 bg-white text-indigo-700 hover:bg-indigo-100 rounded-xl border border-indigo-200 shadow-sm transition active:scale-95 cursor-pointer flex items-center gap-1 text-[11px] font-bold"
-            title="إعادة فحص الأصوات الآن"
+            title="إعادة فحص الصوت الآن"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>إعادة الفحص</span>
           </button>
         </div>
 
-        {/* Status Alert: Has Arabic Voice or Needs Browser Restart */}
-        {diagnostics.hasArabicVoice ? (
+        {/* Offline Audio Pack Readiness Status */}
+        {diagnostics.offlinePackReady ? (
           <div className="p-3 bg-emerald-50 border-2 border-emerald-300 rounded-2xl flex items-center justify-between gap-2 shadow-sm">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
               <div>
                 <p className="text-xs font-black text-emerald-950">
-                  {diagnostics.isSaudiVoice
-                    ? '🇸🇦 تم تفعيل حزمة الصوت العربية (السعودية ar-SA) بنجاح!'
-                    : '✅ تم اكتشاف واختيار الصوت العربي بنجاح!'}
+                  ✅ صوت المعلمة وتلاوات القرآن جاهزان 100% دون إنترنت!
                 </p>
                 <p className="text-[10px] text-emerald-700 font-bold mt-0.5">
-                  الصوت النشط: {diagnostics.selectedArabicVoice || 'الصوت العربي المتاح'}
+                  المقاطع المدمجة: {diagnostics.verifiedTtsCount} ملف عربي وإنجليزي • القرآن: {diagnostics.verifiedQuranSurahCount} سور + {diagnostics.verifiedQuranAyahCount} آية
                 </p>
               </div>
             </div>
             <span className="text-[10px] font-bold bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full shrink-0">
-              نشط ومحدد
+              يعمل دون اتصال
             </span>
           </div>
         ) : (
           <div className="p-3.5 bg-amber-50 border-2 border-amber-300 rounded-2xl space-y-2 text-xs shadow-sm">
             <div className="flex items-center gap-2 text-amber-900 font-black">
               <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
-              <span>تنبيه: لم يتعرف متصفح Chrome على حزمة الصوت العربي بعد</span>
+              <span>تنبيه: حزمة الصوت المحلية غير مكتملة</span>
             </div>
-            <p className="text-amber-800 text-[11px] leading-relaxed">
-              إذا قمت بتثبيت حزمة الصوت العربي في إعدادات Windows مؤخرًا، إليك الخطوات المؤكدة لتفعيلها:
-            </p>
-            <ul className="text-[11px] text-amber-950 space-y-1 list-disc list-inside bg-white/70 p-2.5 rounded-xl border border-amber-200">
-              <li>
-                <strong>إغلاق متصفح Chrome وإعادة فتحه بالكامل:</strong> متصفح Chrome لا يقرأ حزم SAPI5 الجديدة إلا بعد إعادة تشغيل المتصفح.
-              </li>
-              <li>
-                <strong>التجربة في متصفح Microsoft Edge:</strong> متصفح Edge مدمج بنظام Windows ويتعرف فورًا على أصوات (Microsoft Naayf و Hoda).
-              </li>
-              <li>
-                <strong>البديل الصوتي الحقيقي:</strong> تلاوات القرآن الكريم العذبة للشيخ مشاري العفاسي تعمل بملفات صوتية حقيقية مستقلة، والصوت الإنجليزي يعمل بنطق صحيح.
-              </li>
+          </div>
+        )}
+
+        {/* Honest Missing Audio Files List (if any detected) */}
+        {diagnostics.missingItems.length > 0 && (
+          <div className="p-3 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-1.5 text-xs">
+            <div className="flex items-center gap-1.5 font-black text-rose-900">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>عبارات غير مغطاة محلياً ({diagnostics.missingItems.length}):</span>
+            </div>
+            <ul className="text-[11px] text-rose-800 space-y-1 max-h-28 overflow-y-auto list-disc list-inside">
+              {diagnostics.missingItems.map((m, idx) => (
+                <li key={idx}>{m.text} ({m.lang})</li>
+              ))}
             </ul>
           </div>
         )}
@@ -552,18 +556,44 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
       {/* Reset Progress Action */}
       <div className="pt-2">
-        <button
-          type="button"
-          onClick={() => {
-            if (window.confirm('هل ترغبين في إعادة تصفير نجوم التدريب؟')) {
-              onResetData();
-            }
-          }}
-          className="w-full py-3 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-2xl text-xs font-bold border border-rose-200 flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          <span>إعادة ضبط التقدم التدريبي</span>
-        </button>
+        {!showResetConfirm ? (
+          <button
+            type="button"
+            onClick={() => {
+              playSoundEffect.click();
+              setShowResetConfirm(true);
+            }}
+            className="w-full py-3 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-2xl text-xs font-bold border border-rose-200 flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>إعادة ضبط التقدم التدريبي</span>
+          </button>
+        ) : (
+          <div className="p-3 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-2 text-center">
+            <p className="text-xs font-black text-rose-900">
+              هل ترغبين في إعادة تصفير نجوم التدريب وتقدم الدروس؟
+            </p>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  onResetData();
+                  setShowResetConfirm(false);
+                }}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold cursor-pointer active:scale-95"
+              >
+                نعم، إعادة الضبط
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowResetConfirm(false)}
+                className="px-4 py-2 bg-white text-purple-900 border border-purple-200 rounded-xl text-xs font-bold cursor-pointer active:scale-95"
+              >
+                إلغاء
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -178,7 +178,13 @@ export const MathScreen: React.FC<MathScreenProps> = ({ onAddStars, onCompleteLe
           />
 
           {/* Large Number Showcase */}
-          <div className="bg-gradient-to-b from-amber-50 to-orange-50 rounded-3xl p-4 border-2 border-amber-300 text-center shadow-md relative">
+          <div
+            onClick={() => {
+              playSoundEffect.click();
+              speakText(`العدد ${selectedNumber}`, 'ar');
+            }}
+            className="bg-gradient-to-b from-amber-50 to-orange-50 rounded-3xl p-4 border-2 border-amber-300 text-center shadow-md relative cursor-pointer"
+          >
             <div className="absolute top-3 left-3">
               <SpeakButton text={`العدد ${selectedNumber}`} size="sm" className="bg-amber-200 text-amber-900" />
             </div>
@@ -317,7 +323,13 @@ export const MathScreen: React.FC<MathScreenProps> = ({ onAddStars, onCompleteLe
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-2 mt-3">
+            <div
+              onClick={() => {
+                playSoundEffect.click();
+                speakText(currentAdd.question, 'ar');
+              }}
+              className="flex items-center justify-center gap-2 mt-3 cursor-pointer"
+            >
               <h3 className="text-base font-black text-purple-900">{currentAdd.question}</h3>
               <SpeakButton text={currentAdd.question} size="xs" />
             </div>
@@ -397,7 +409,13 @@ export const MathScreen: React.FC<MathScreenProps> = ({ onAddStars, onCompleteLe
               ))}
             </div>
 
-            <div className="flex items-center justify-center gap-2 mt-2">
+            <div
+              onClick={() => {
+                playSoundEffect.click();
+                speakText(currentSub.question, 'ar');
+              }}
+              className="flex items-center justify-center gap-2 mt-2 cursor-pointer"
+            >
               <h3 className="text-base font-black text-purple-900">{currentSub.question}</h3>
               <SpeakButton text={currentSub.question} size="xs" />
             </div>

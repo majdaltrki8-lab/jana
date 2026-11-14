@@ -48,64 +48,28 @@ export const VirtualTeacher: React.FC<VirtualTeacherProps> = ({
     setTimeout(handleSpeak, 100);
   };
 
-  // Microphone practice (Web Speech Recognition or audio prompt)
+  // 100% Offline repeat-aloud self-practice (never calls Google Cloud SpeechRecognition)
   const handleMicPractice = () => {
     playSoundEffect.click();
-    const SpeechRec =
-      (window as unknown as { SpeechRecognition?: any; webkitSpeechRecognition?: any })
-        .SpeechRecognition ||
-      (window as unknown as { SpeechRecognition?: any; webkitSpeechRecognition?: any })
-        .webkitSpeechRecognition;
+    setSpeechResult(
+      lang === 'ar'
+        ? 'ردّدي بصوتكِ الجميل الآن يا جنى...'
+        : 'Repeat aloud after the teacher, Jana...'
+    );
+    setPraiseText(null);
+    setIsListening(true);
 
-    if (!SpeechRec) {
-      // Fallback for browsers without speech recognition: interactive encouragement simulation
-      setIsListening(true);
-      setTimeout(() => {
-        setIsListening(false);
-        playSoundEffect.success();
-        const praise = getRandomPraise();
-        setPraiseText(praise);
-        speakText(praise, 'ar');
-      }, 2500);
-      return;
-    }
-
-    try {
-      const recognition = new SpeechRec();
-      recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
-      recognition.continuous = false;
-      recognition.interimResults = false;
-
-      setIsListening(true);
-      setSpeechResult('أنا أستمع إليكِ يا جنى، قولي الكلمة الآن...');
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setIsListening(false);
-        setSpeechResult(`سمعتكِ تقولين: «${transcript}»`);
-        playSoundEffect.success();
-        const praise = lang === 'ar' ? `ممتازة يا جنى! نطقتِ «${transcript}» بشكل جميل جداً!` : `Well done Jana! You said "${transcript}" perfectly!`;
-        setPraiseText(praise);
-        speakText(praise, lang);
-      };
-
-      recognition.onerror = () => {
-        setIsListening(false);
-        // Friendly fallback praise even if mic was quiet
-        playSoundEffect.success();
-        const praise = getRandomPraise();
-        setPraiseText(praise);
-        speakText(praise, 'ar');
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognition.start();
-    } catch {
+    setTimeout(() => {
       setIsListening(false);
-    }
+      setSpeechResult(null);
+      playSoundEffect.success();
+      const praise =
+        lang === 'en'
+          ? 'Great job, Jana! Correct!'
+          : getRandomPraise();
+      setPraiseText(praise);
+      speakText(praise, lang);
+    }, 2200);
   };
 
   useEffect(() => {
@@ -124,8 +88,12 @@ export const VirtualTeacher: React.FC<VirtualTeacherProps> = ({
   return (
     <div className={`w-full bg-gradient-to-r from-purple-50 via-pink-50 to-amber-50 border-2 border-purple-200 rounded-2xl p-3 sm:p-4 shadow-sm mb-4 transition-all ${compact ? 'py-2.5' : ''}`}>
       <div className="flex items-start gap-3">
-        {/* Animated Teacher Avatar */}
-        <div className="relative shrink-0 flex flex-col items-center">
+        {/* Animated Teacher Avatar (tap to speak/replay) */}
+        <div
+          onClick={handleReplay}
+          className="relative shrink-0 flex flex-col items-center cursor-pointer"
+          title="اضغطي لسماع المعلمة"
+        >
           <div
             className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-purple-400 bg-gradient-to-tr from-purple-500 via-pink-500 to-amber-400 p-0.5 shadow-md flex items-center justify-center overflow-hidden transition-transform ${
               isSpeaking ? 'scale-105 ring-4 ring-pink-300 animate-pulse' : ''
@@ -150,7 +118,10 @@ export const VirtualTeacher: React.FC<VirtualTeacherProps> = ({
 
         {/* Speech Bubble & Content */}
         <div className="flex-1">
-          <div className="relative bg-white border border-purple-200 rounded-2xl p-3 shadow-sm text-sm text-purple-950 font-medium leading-relaxed">
+          <div
+            onClick={handleReplay}
+            className="relative bg-white border border-purple-200 rounded-2xl p-3 shadow-sm text-sm text-purple-950 font-medium leading-relaxed cursor-pointer"
+          >
             {/* Small triangle arrow on right side for RTL */}
             <div className="absolute top-4 -right-2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-8 border-l-white" />
 

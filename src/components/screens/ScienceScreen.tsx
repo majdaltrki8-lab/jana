@@ -149,11 +149,18 @@ export const ScienceScreen: React.FC<ScienceScreenProps> = ({ onAddStars, onComp
             {[
               { title: '١. حاسة البصر (العينان)', desc: 'نرى بها الأشياء الجميلة والألوان والأشكال.', icon: '👁️', audio: 'نرى الأشياء بأعيننا الجميلة يا جنى' },
               { title: '٢. حاسة السمع (الأذنان)', desc: 'نسمع بها الأصوات والعصافير والقرآن الكريم.', icon: '👂', audio: 'نسمع الأصوات الجميلة بآذاننا' },
-              { title: '٣. حاسة الشم (الأنف)', desc: 'نشم بها رائحة الورود والطعام الطيب.', icon: '👃', audio: 'نششم روائح الزهور الطيبة بأنوفنا' },
+              { title: '٣. حاسة الشم (الأنف)', desc: 'نشم بها رائحة الورود والطعام الطيب.', icon: '👃', audio: 'نشم روائح الزهور الطيبة بأنوفنا' },
               { title: '٤. حاسة التذوق (اللسان)', desc: 'نتذوق بها الطعم الحلو والحامض واللذيذ.', icon: '👅', audio: 'نتذوق أطيب الأطعمة بألسنتنا' },
               { title: '٥. حاسة اللمس (اليد الجلد)', desc: 'نلمس بها الأشياء الناعمة والخشنة والباردة.', icon: '✋', audio: 'نلمس الأشياء ونميزها بأيدينا' },
             ].map((s, idx) => (
-              <div key={idx} className="bg-white p-4 rounded-2xl border-2 border-emerald-200 shadow-sm space-y-2">
+              <div
+                key={idx}
+                onClick={() => {
+                  playSoundEffect.click();
+                  speakText(s.audio, 'ar');
+                }}
+                className="bg-white p-4 rounded-2xl border-2 border-emerald-200 shadow-sm space-y-2 cursor-pointer hover:bg-emerald-50/70 active:scale-98 transition"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{s.icon}</span>
@@ -208,7 +215,14 @@ export const ScienceScreen: React.FC<ScienceScreenProps> = ({ onAddStars, onComp
               { title: 'الأزهار والورود', desc: 'تتميز بألوانها الزاهية ورائحتها العطرة.', icon: '🌸', audio: 'الزهور جميلة وزاهية الألوان' },
               { title: 'أشجار الفواكه', desc: 'تفاح وموز وبرتقال تغذي أجسامنا وتمنحنا الصحة.', icon: '🍎', audio: 'الفواكه المفيدة تغذي أجسامنا يا جنى' },
             ].map((p, idx) => (
-              <div key={idx} className="bg-white p-4 rounded-2xl border-2 border-lime-200 shadow-sm space-y-2">
+              <div
+                key={idx}
+                onClick={() => {
+                  playSoundEffect.click();
+                  speakText(p.audio, 'ar');
+                }}
+                className="bg-white p-4 rounded-2xl border-2 border-lime-200 shadow-sm space-y-2 cursor-pointer hover:bg-lime-50/70 active:scale-98 transition"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{p.icon}</span>
@@ -263,7 +277,14 @@ export const ScienceScreen: React.FC<ScienceScreenProps> = ({ onAddStars, onComp
               { title: 'الأغنام والابقار', desc: 'تعطينا الحليب المفيد واللحوم الصالحة للتغذية.', icon: '🐄', audio: 'البقرة والخروف تعطينا الحليب المفيد' },
               { title: 'الطيور والعصافير', desc: 'تبني أعشاشها وتغرد بأصوات عذبة في الصباح.', icon: '🐦', audio: 'العصافير تغرد بأصوات جميلة' },
             ].map((a, idx) => (
-              <div key={idx} className="bg-white p-4 rounded-2xl border-2 border-amber-200 shadow-sm space-y-2">
+              <div
+                key={idx}
+                onClick={() => {
+                  playSoundEffect.click();
+                  speakText(a.audio, 'ar');
+                }}
+                className="bg-white p-4 rounded-2xl border-2 border-amber-200 shadow-sm space-y-2 cursor-pointer hover:bg-amber-50/70 active:scale-98 transition"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{a.icon}</span>
@@ -315,9 +336,16 @@ export const ScienceScreen: React.FC<ScienceScreenProps> = ({ onAddStars, onComp
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               { title: 'أهمية الماء', desc: 'الماء العذب ضروري لشرب الإنسان والحيوان وسقي النباتات.', icon: '💧', audio: 'الماء هو سر الحياة يا جنى' },
-              { title: 'الشمس والطقس', desc: 'الشمس تمنحنا الدفء والنور وتساعد النبات على النمو.', icon: '☀️', audio: 'الشمس تمنحنا النور والدافء' },
+              { title: 'الشمس والطقس', desc: 'الشمس تمنحنا الدفء والنور وتساعد النبات على النمو.', icon: '☀️', audio: 'الشمس تمنحنا النور والدفء' },
             ].map((w, idx) => (
-              <div key={idx} className="bg-white p-4 rounded-2xl border-2 border-cyan-200 shadow-sm space-y-2">
+              <div
+                key={idx}
+                onClick={() => {
+                  playSoundEffect.click();
+                  speakText(w.audio, 'ar');
+                }}
+                className="bg-white p-4 rounded-2xl border-2 border-cyan-200 shadow-sm space-y-2 cursor-pointer hover:bg-cyan-50/70 active:scale-98 transition"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{w.icon}</span>

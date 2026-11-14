@@ -7,6 +7,7 @@ import { playSoundEffect, speakText } from '../utils/audio';
 export const InstallAppBanner: React.FC = () => {
   const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
   const [showIOSModal, setShowIOSModal] = useState(false);
+  const [showAndroidModal, setShowAndroidModal] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
   if (isInstalled || dismissed) {
@@ -20,9 +21,8 @@ export const InstallAppBanner: React.FC = () => {
     } else if (isIOS) {
       setShowIOSModal(true);
     } else {
-      // Direct instruction guide for Android Chrome
       speakText('لتثبيت تطبيق جنى على هاتفك، اضغطي على خيارات المتصفح ثم اختاري تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية', 'ar');
-      alert('لتثبيت تطبيق جنى التعليمي على هاتفك:\n1. اضغطي على قائمة المتصفح (⋮) في أعلى أو أسفل الشاشة\n2. اختاري "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية"');
+      setShowAndroidModal(true);
     }
   };
 
@@ -135,6 +135,40 @@ export const InstallAppBanner: React.FC = () => {
               className="w-full py-2.5 bg-gradient-to-r from-purple-700 to-indigo-800 text-white rounded-2xl font-bold text-xs shadow-md transition active:scale-95 cursor-pointer"
             >
               تم وفهمت الخطوات
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Android Browser Install Guide Modal */}
+      {showAndroidModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border-2 border-amber-300 text-purple-950 space-y-4 text-center">
+            <div className="flex justify-center">
+              <AppIcon size="lg" className="w-20 h-20 shadow-xl ring-4 ring-amber-300" />
+            </div>
+
+            <div>
+              <h3 className="text-base font-black text-purple-950">
+                تثبيت تطبيق جنى على هاتف Android
+              </h3>
+              <p className="text-xs text-purple-700 mt-1">
+                يمكنكِ تثبيت التطبيق من متصفح Chrome أو عبر ملف APK من GitHub Actions:
+              </p>
+            </div>
+
+            <div className="bg-purple-50 p-3 rounded-2xl border border-purple-200 space-y-2 text-xs text-right font-medium">
+              <p>١. اضغطي على قائمة المتصفح (⋮) في أعلى الشاشة.</p>
+              <p>٢. اختاري «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».</p>
+              <p>٣. أو ثبّتي ملف <strong>app-debug.apk</strong> مباشرة على الهاتف للعمل بالكامل دون إنترنت.</p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowAndroidModal(false)}
+              className="w-full py-2.5 bg-gradient-to-r from-purple-700 to-indigo-800 text-white rounded-2xl font-bold text-xs shadow-md transition active:scale-95 cursor-pointer"
+            >
+              حسناً
             </button>
           </div>
         </div>
